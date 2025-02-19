@@ -109,6 +109,7 @@ jobs:
           CUDA_VERSION: 12.5.0
           NVBANDWIDTH_VERSION: v0.7
           PUSH_ON_BUILD: true
+          OPENMPI_VERSION: v0.6.0
           BUILD_MULTI_ARCH_IMAGES: true
         run: |
           echo "nvbandwidth ${NVBANDWIDTH_VERSION}"

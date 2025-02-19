@@ -13,6 +13,7 @@
 # limitations under the License.
 
 ARG CUDA_VERSION=12.5.0
+ARG OPENMPI_VERSION=v0.6.0
 
 FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04 AS builder
 
@@ -40,7 +41,12 @@ RUN git clone --branch ${NVBANDWIDTH_VERSION} --depth 1 --single-branch https://
     cmake -DMULTINODE=1 . && \
     make -j$(nproc)
 
-FROM mpioperator/openmpi:v0.6.0
+FROM mpioperator/openmpi:${OPENMPI_VERSION}
+
+LABEL io.k8s.display-name="NVIDIA CUDA NVBANDWIDTH BENCHMARK"
+LABEL name="NVIDIA CUDA NVBANDWIDTH BENCHMARK"
+LABEL vendor="NVIDIA"
+LABEL summary="NVIDIA CUDA NVBANDWIDTH BENCHMARK"
+LABEL description="See summary"
 
 COPY --from=builder /bandwidthtest/nvbandwidth/nvbandwidth /usr/bin
-

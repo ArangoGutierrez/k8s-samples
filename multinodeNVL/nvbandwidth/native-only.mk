@@ -12,12 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Specify the CUDA base image version
-VERSION ?= cuda$(shell  grep -Eo "FROM.*cuda:[0-9\.]+" deployments/container/Dockerfile.ubuntu | sort -u | sed 's/.*://g')
+PUSH_ON_BUILD ?= false
+ARCH ?= $(shell uname -m)
+DOCKER_BUILD_PLATFORM_OPTIONS = --platform=linux/$(ARCH)
 
-# Specify the tag for the https://github.com/NVIDIA/cuda-samples repository.
-# This need not match the CUDA_VERSION above.
-CUDA_SAMPLES_VERSION := v12.0
+ifeq ($(PUSH_ON_BUILD),true)
+$(BUILD_TARGETS): build-%: image-%
+	$(DOCKER) push "$(IMAGE)"
+else
+$(BUILD_TARGETS): build-%: image-%
+endif
 
-# GitHub Registry
-REGISTRY ?= ghcr.io/nvidia
+# For the default distribution we also retag the image.
+# Note: This needs to be updated for multi-arch images.
+ifeq ($(IMAGE_TAG),$(VERSION)-$(DIST))
+$(DEFAULT_PUSH_TARGET):
+	$(DOCKER) image inspect $(IMAGE) > /dev/null || $(DOCKER) pull $(IMAGE)
+	$(DOCKER) tag $(IMAGE) $(subst :$(IMAGE_TAG),:$(VERSION),$(IMAGE))
+endif

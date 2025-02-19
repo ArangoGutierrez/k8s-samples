@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Specify the CUDA base image version
-VERSION ?= cuda$(shell  grep -Eo "FROM.*cuda:[0-9\.]+" deployments/container/Dockerfile.ubuntu | sort -u | sed 's/.*://g')
+PUSH_ON_BUILD ?= false
+DOCKER_BUILD_OPTIONS = --output=type=image,push=$(PUSH_ON_BUILD)
+DOCKER_BUILD_PLATFORM_OPTIONS = --platform=linux/amd64,linux/arm64
 
-# Specify the tag for the https://github.com/NVIDIA/cuda-samples repository.
-# This need not match the CUDA_VERSION above.
-CUDA_SAMPLES_VERSION := v12.0
-
-# GitHub Registry
-REGISTRY ?= ghcr.io/nvidia
+$(BUILD_TARGETS): build-%: image-%
